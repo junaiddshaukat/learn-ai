@@ -1,0 +1,108 @@
+# =============================================================
+# TASK DEFINITIONS
+# =============================================================
+# IMPORTANT: Keep output concise. LLMs generate enormous amounts
+# of code if unconstrained, which burns tokens and takes forever.
+# Constrain with word limits and "focus on key files only".
+# =============================================================
+
+architecture_planning:
+  description: >
+    Create a technical architecture plan for this project:
+
+    Project: {project_name}
+    Description: {project_description}
+    Mode: {mode}
+
+    Include: system overview, tech stack choices, list of pages/routes,
+    API endpoints (method + path + purpose), database tables overview,
+    auth approach, and deployment notes.
+
+    Be concise. Use bullet points. No code in this task.
+    Keep under 800 words.
+  expected_output: >
+    A concise markdown document (under 800 words) with sections:
+    Architecture Overview, Tech Stack, Pages/Routes, API Endpoints,
+    Database Tables, Auth Strategy, Deployment Notes.
+  agent: backend_developer
+
+database_design:
+  description: >
+    Based on the architecture plan in context, design the database
+    schema for {project_name}.
+
+    Include: table definitions with columns and types, primary/foreign
+    keys, key indexes, and one short CREATE TABLE block per table.
+
+    Keep it focused. No seed data. Under 600 words.
+  expected_output: >
+    A concise markdown document (under 600 words) with an ER summary
+    and SQL CREATE TABLE statements in fenced code blocks.
+  agent: database_architect
+  context:
+    - architecture_planning
+
+backend_implementation:
+  description: >
+    Based on the architecture and schema in context, generate the
+    backend for {project_name}.
+
+    If mode is "plan_only": provide the folder structure tree and
+    describe each file's purpose in 1-2 sentences. No code.
+
+    If mode is "plan_and_code": provide the folder structure tree
+    and code for the 3-4 MOST IMPORTANT files only (e.g. main app,
+    one route handler, auth middleware, data models). Skip boilerplate.
+
+    Keep under 1000 words total.
+  expected_output: >
+    A markdown document (under 1000 words) with project structure
+    tree and key file contents in fenced code blocks.
+  agent: backend_developer
+  context:
+    - architecture_planning
+    - database_design
+
+frontend_implementation:
+  description: >
+    Based on the architecture and backend API in context, generate
+    the frontend for {project_name}.
+
+    If mode is "plan_only": provide the component tree and describe
+    each component's purpose. No code.
+
+    If mode is "plan_and_code": provide code for the 3-4 MOST
+    IMPORTANT components only (e.g. layout, main page, one form,
+    API client). Skip boilerplate and repeated patterns.
+
+    Use React/Next.js with TypeScript and Tailwind CSS.
+    Keep under 1000 words total.
+  expected_output: >
+    A markdown document (under 1000 words) with component hierarchy
+    and key component code in fenced code blocks.
+  agent: frontend_developer
+  context:
+    - architecture_planning
+    - backend_implementation
+
+test_suite:
+  description: >
+    Based on all context, create a test plan for {project_name}.
+
+    Include: test strategy overview (tools, approach), 2-3 example
+    unit tests for critical backend logic, 2-3 example API tests,
+    1-2 frontend component test examples, and a CI pipeline config.
+
+    If mode is "plan_only": describe test scenarios only, no code.
+    If mode is "plan_and_code": write example test code (not exhaustive).
+
+    Keep under 800 words total.
+  expected_output: >
+    A markdown document (under 800 words) with test strategy,
+    example test code in fenced blocks, and CI config.
+  agent: testing_engineer
+  context:
+    - architecture_planning
+    - database_design
+    - backend_implementation
+    - frontend_implementation
